@@ -652,7 +652,7 @@ for _ in range(200):
         "NUM_CLASSES": 4,
         "PATCH_SIZE": 10,
         "PROJ_DIM": 192,
-        "CLASS_NAMES": ["reactive", "nearfield", "farfield", "meow"],
+        "CLASS_NAMES": ["Region A", "Region B", "Region C", "Region D"],
         "N_PATCHES": 16,
         "HIDDEN_SIZE": 100,  # 10 * 10 for a patch of 10x10 with 1 channel
     }
