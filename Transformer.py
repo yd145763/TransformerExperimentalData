@@ -1020,7 +1020,7 @@ for _ in range(200):
         "N_DENSE_2": 256,
         "NUM_CLASSES": 4,
         "PROJ_DIM": 192,
-        "CLASS_NAMES": ["reactive", "nearfield", "farfield", "meow"],
+        "CLASS_NAMES": ["Region A", "Region B", "Region C", "Region D"],
         "HIDDEN_SIZE": 1,
     }
     
