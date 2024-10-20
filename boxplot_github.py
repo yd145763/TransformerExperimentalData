@@ -12,11 +12,12 @@ import matplotlib.pyplot as plt
 import ast
 
 from matplotlib.ticker import StrMethodFormatter
-df_vit = pd.read_csv("https://raw.githubusercontent.com/yd145763/TransformerExperimentalData/main/ViT_full_result1.csv", index_col = 0)
-df_trans = pd.read_csv("https://raw.githubusercontent.com/yd145763/TransformerExperimentalData/main/transformer_full_result1.csv", index_col = 0)
-df_vit = df_vit.iloc[:150, :]
-df_trans = df_trans.iloc[:150, :]
-
+df_vit = pd.read_csv("https://raw.githubusercontent.com/yd145763/TransformerExperimentalData/main/df_results_vit5.csv", index_col = 0)
+df_trans = pd.read_csv("https://raw.githubusercontent.com/yd145763/TransformerExperimentalData/main/df_results_transformer5.csv", index_col = 0)
+#df_vit = df_vit.iloc[:150, :]
+#df_trans = df_trans.iloc[:150, :]
+df_cnn = pd.read_csv("https://raw.githubusercontent.com/yd145763/TransformerExperimentalData/main/df_results_cnn5.csv", index_col = 0)
+#df_cnn = df_cnn.iloc[:150, :]
 
 def find_TV_difference(df):
     difference_list = []
@@ -49,6 +50,7 @@ def find_TV_difference(df):
 
 difference_trans, epoch_list_trans = find_TV_difference(df_trans)
 difference_vit, epoch_list_vit = find_TV_difference(df_vit)
+difference_cnn, epoch_list_cnn = find_TV_difference(df_cnn)
 
 # Combine data into a list
 data =[difference_vit, difference_trans]
@@ -101,8 +103,17 @@ plt.ylabel("(Validation - Training)")
 # Show the plot
 plt.show()
 
+# Extracting minimum and maximum points from the box plot
+for i, whisker in enumerate(box['whiskers']):
+    if i % 2 == 0:  # even index, represents minimum point
+        min_val = whisker.get_ydata()[1]
+        print(f'Minimum point for box {i//2 + 1}: {min_val}')
+    else:  # odd index, represents maximum point
+        max_val = whisker.get_ydata()[1]
+        print(f'Maximum point for box {i//2 + 1}: {max_val}')
+
 # Combine data into a list
-data =[epoch_list_vit, epoch_list_vit]
+data =[epoch_list_vit, epoch_list_trans]
 
 fig = plt.figure(figsize=(6, 4))
 ax = plt.axes()
@@ -217,20 +228,11 @@ plt.show()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-conf = df_trans['confusion_matrix_list']
+conf = df_trans[['confusion_matrix_list', 'confusion_matrix_list06', 'confusion_matrix_list08', 'confusion_matrix_list09', 'confusion_matrix_list12', 'accuracy_list']]
+conf_sorted = conf.sort_values(by='accuracy_list', ascending=True)
+#conf = conf_sorted['confusion_matrix_list']
+conf_sorted = conf_sorted.reset_index(drop = True)
+conf = conf_sorted['confusion_matrix_list']
 x = conf[99]
 print(x)
 
@@ -266,6 +268,334 @@ for i, text in enumerate(ax.texts):
 plt.show()
 plt.close()
 
+conf = conf_sorted['confusion_matrix_list06']
+x = conf[99]
+print(x)
+
+x = x.replace('[', '').replace(']', '')
+
+confusion_matrix = np.array([list(map(int, row.split())) for row in x.strip().split('\n')])
+
+plt.figure(figsize=(6, 4))
+ax = sns.heatmap(confusion_matrix, annot=True, fmt="d", cmap="cool", 
+            xticklabels=['A', 'B', 'C', 'D'], 
+            yticklabels=['A', 'B', 'C', 'D'])
+
+
+cbar = ax.collections[0].colorbar
+cbar.ax.tick_params(labelsize=25, width=2, length=6, pad=10, direction="out", colors="black", labelcolor="black")
+for t in cbar.ax.get_yticklabels():
+    t.set_fontweight("bold")
+
+font = {'color': 'black', 'weight': 'bold', 'size': 25}
+ax.set_ylabel("Actual", fontdict=font)
+ax.set_xlabel("Predicted", fontdict=font)
+
+# Setting tick labels bold
+ax.set_xticklabels(ax.get_xticklabels(), fontweight="bold", fontdict = font)
+ax.set_yticklabels(ax.get_yticklabels(), fontweight="bold", fontdict = font)
+#ax.tick_params(axis='both', labelsize=12, weight='bold')
+for i, text in enumerate(ax.texts):
+    text.set_fontsize(25)
+for i, text in enumerate(ax.texts):
+    text.set_fontweight('bold')
+#plt.title("Confusion Matrix"+"_"+"HEADS"+str(N_HEADS)+"_"+"LAYERS"+str(N_LAYERS)+"_"+"MLP"+str(N_DENSE_UNITS)+"_"+"ImageSize"+str(SIZE)
+#          +"\n"+"Accuracy"+str(accuracy))
+plt.show()
+plt.close()
+
+conf = conf_sorted['confusion_matrix_list08']
+x = conf[99]
+print(x)
+
+x = x.replace('[', '').replace(']', '')
+
+confusion_matrix = np.array([list(map(int, row.split())) for row in x.strip().split('\n')])
+
+plt.figure(figsize=(6, 4))
+ax = sns.heatmap(confusion_matrix, annot=True, fmt="d", cmap="cool", 
+            xticklabels=['A', 'B', 'C', 'D'], 
+            yticklabels=['A', 'B', 'C', 'D'])
+
+
+cbar = ax.collections[0].colorbar
+cbar.ax.tick_params(labelsize=25, width=2, length=6, pad=10, direction="out", colors="black", labelcolor="black")
+for t in cbar.ax.get_yticklabels():
+    t.set_fontweight("bold")
+
+font = {'color': 'black', 'weight': 'bold', 'size': 25}
+ax.set_ylabel("Actual", fontdict=font)
+ax.set_xlabel("Predicted", fontdict=font)
+
+# Setting tick labels bold
+ax.set_xticklabels(ax.get_xticklabels(), fontweight="bold", fontdict = font)
+ax.set_yticklabels(ax.get_yticklabels(), fontweight="bold", fontdict = font)
+#ax.tick_params(axis='both', labelsize=12, weight='bold')
+for i, text in enumerate(ax.texts):
+    text.set_fontsize(25)
+for i, text in enumerate(ax.texts):
+    text.set_fontweight('bold')
+#plt.title("Confusion Matrix"+"_"+"HEADS"+str(N_HEADS)+"_"+"LAYERS"+str(N_LAYERS)+"_"+"MLP"+str(N_DENSE_UNITS)+"_"+"ImageSize"+str(SIZE)
+#          +"\n"+"Accuracy"+str(accuracy))
+plt.show()
+plt.close()
+
+conf = conf_sorted['confusion_matrix_list09']
+x = conf[99]
+print(x)
+
+x = x.replace('[', '').replace(']', '')
+
+confusion_matrix = np.array([list(map(int, row.split())) for row in x.strip().split('\n')])
+
+plt.figure(figsize=(6, 4))
+ax = sns.heatmap(confusion_matrix, annot=True, fmt="d", cmap="cool", 
+            xticklabels=['A', 'B', 'C', 'D'], 
+            yticklabels=['A', 'B', 'C', 'D'])
+
+
+cbar = ax.collections[0].colorbar
+cbar.ax.tick_params(labelsize=25, width=2, length=6, pad=10, direction="out", colors="black", labelcolor="black")
+for t in cbar.ax.get_yticklabels():
+    t.set_fontweight("bold")
+
+font = {'color': 'black', 'weight': 'bold', 'size': 25}
+ax.set_ylabel("Actual", fontdict=font)
+ax.set_xlabel("Predicted", fontdict=font)
+
+# Setting tick labels bold
+ax.set_xticklabels(ax.get_xticklabels(), fontweight="bold", fontdict = font)
+ax.set_yticklabels(ax.get_yticklabels(), fontweight="bold", fontdict = font)
+#ax.tick_params(axis='both', labelsize=12, weight='bold')
+for i, text in enumerate(ax.texts):
+    text.set_fontsize(25)
+for i, text in enumerate(ax.texts):
+    text.set_fontweight('bold')
+#plt.title("Confusion Matrix"+"_"+"HEADS"+str(N_HEADS)+"_"+"LAYERS"+str(N_LAYERS)+"_"+"MLP"+str(N_DENSE_UNITS)+"_"+"ImageSize"+str(SIZE)
+#          +"\n"+"Accuracy"+str(accuracy))
+plt.show()
+plt.close()
+
+conf = conf_sorted['confusion_matrix_list12']
+x = conf[99]
+print(x)
+
+x = x.replace('[', '').replace(']', '')
+
+confusion_matrix = np.array([list(map(int, row.split())) for row in x.strip().split('\n')])
+
+plt.figure(figsize=(6, 4))
+ax = sns.heatmap(confusion_matrix, annot=True, fmt="d", cmap="cool", 
+            xticklabels=['A', 'B', 'C', 'D'], 
+            yticklabels=['A', 'B', 'C', 'D'])
+
+
+cbar = ax.collections[0].colorbar
+cbar.ax.tick_params(labelsize=25, width=2, length=6, pad=10, direction="out", colors="black", labelcolor="black")
+for t in cbar.ax.get_yticklabels():
+    t.set_fontweight("bold")
+
+font = {'color': 'black', 'weight': 'bold', 'size': 25}
+ax.set_ylabel("Actual", fontdict=font)
+ax.set_xlabel("Predicted", fontdict=font)
+
+# Setting tick labels bold
+ax.set_xticklabels(ax.get_xticklabels(), fontweight="bold", fontdict = font)
+ax.set_yticklabels(ax.get_yticklabels(), fontweight="bold", fontdict = font)
+#ax.tick_params(axis='both', labelsize=12, weight='bold')
+for i, text in enumerate(ax.texts):
+    text.set_fontsize(25)
+for i, text in enumerate(ax.texts):
+    text.set_fontweight('bold')
+#plt.title("Confusion Matrix"+"_"+"HEADS"+str(N_HEADS)+"_"+"LAYERS"+str(N_LAYERS)+"_"+"MLP"+str(N_DENSE_UNITS)+"_"+"ImageSize"+str(SIZE)
+#          +"\n"+"Accuracy"+str(accuracy))
+plt.show()
+plt.close()
+
+
+conf = df_vit[['confusion_matrix_list', 'confusion_matrix_list06', 'confusion_matrix_list08', 'confusion_matrix_list09', 'confusion_matrix_list12', 'accuracy_list']]
+conf_sorted = conf.sort_values(by='accuracy_list', ascending=True)
+#conf = conf_sorted['confusion_matrix_list']
+conf_sorted = conf_sorted.reset_index(drop = True)
+conf = conf_sorted['confusion_matrix_list']
+x = conf[99]
+
+
+x = x.replace('[', '').replace(']', '')
+
+confusion_matrix = np.array([list(map(int, row.split())) for row in x.strip().split('\n')])
+
+plt.figure(figsize=(6, 4))
+ax = sns.heatmap(confusion_matrix, annot=True, fmt="d", cmap="cool", 
+            xticklabels=['Region A', 'Region B', 'Region C', 'Region D'], 
+            yticklabels=['Region A', 'Region B', 'Region C', 'Region D'])
+
+
+cbar = ax.collections[0].colorbar
+cbar.ax.tick_params(labelsize=15, width=2, length=6, pad=10, direction="out", colors="black", labelcolor="black")
+for t in cbar.ax.get_yticklabels():
+    t.set_fontweight("bold")
+
+font = {'color': 'black', 'weight': 'bold', 'size': 15}
+ax.set_ylabel("Actual", fontdict=font)
+ax.set_xlabel("Predicted", fontdict=font)
+
+# Setting tick labels bold
+ax.set_xticklabels(ax.get_xticklabels(), fontweight="bold")
+ax.set_yticklabels(ax.get_yticklabels(), fontweight="bold")
+#ax.tick_params(axis='both', labelsize=12, weight='bold')
+for i, text in enumerate(ax.texts):
+    text.set_fontsize(15)
+for i, text in enumerate(ax.texts):
+    text.set_fontweight('bold')
+#plt.title("Confusion Matrix"+"_"+"HEADS"+str(N_HEADS)+"_"+"LAYERS"+str(N_LAYERS)+"_"+"MLP"+str(N_DENSE_UNITS)+"_"+"ImageSize"+str(SIZE)
+#          +"\n"+"Accuracy"+str(accuracy))
+plt.show()
+plt.close()
+
+conf = conf_sorted['confusion_matrix_list06']
+x = conf[99]
+print(x)
+
+x = x.replace('[', '').replace(']', '')
+
+confusion_matrix = np.array([list(map(int, row.split())) for row in x.strip().split('\n')])
+
+plt.figure(figsize=(6, 4))
+ax = sns.heatmap(confusion_matrix, annot=True, fmt="d", cmap="cool", 
+            xticklabels=['A', 'B', 'C', 'D'], 
+            yticklabels=['A', 'B', 'C', 'D'])
+
+
+cbar = ax.collections[0].colorbar
+cbar.ax.tick_params(labelsize=25, width=2, length=6, pad=10, direction="out", colors="black", labelcolor="black")
+for t in cbar.ax.get_yticklabels():
+    t.set_fontweight("bold")
+
+font = {'color': 'black', 'weight': 'bold', 'size': 25}
+ax.set_ylabel("Actual", fontdict=font)
+ax.set_xlabel("Predicted", fontdict=font)
+
+# Setting tick labels bold
+ax.set_xticklabels(ax.get_xticklabels(), fontweight="bold", fontdict = font)
+ax.set_yticklabels(ax.get_yticklabels(), fontweight="bold", fontdict = font)
+#ax.tick_params(axis='both', labelsize=12, weight='bold')
+for i, text in enumerate(ax.texts):
+    text.set_fontsize(25)
+for i, text in enumerate(ax.texts):
+    text.set_fontweight('bold')
+#plt.title("Confusion Matrix"+"_"+"HEADS"+str(N_HEADS)+"_"+"LAYERS"+str(N_LAYERS)+"_"+"MLP"+str(N_DENSE_UNITS)+"_"+"ImageSize"+str(SIZE)
+#          +"\n"+"Accuracy"+str(accuracy))
+plt.show()
+plt.close()
+
+conf = conf_sorted['confusion_matrix_list08']
+x = conf[99]
+print(x)
+
+x = x.replace('[', '').replace(']', '')
+
+confusion_matrix = np.array([list(map(int, row.split())) for row in x.strip().split('\n')])
+
+plt.figure(figsize=(6, 4))
+ax = sns.heatmap(confusion_matrix, annot=True, fmt="d", cmap="cool", 
+            xticklabels=['A', 'B', 'C', 'D'], 
+            yticklabels=['A', 'B', 'C', 'D'])
+
+
+cbar = ax.collections[0].colorbar
+cbar.ax.tick_params(labelsize=25, width=2, length=6, pad=10, direction="out", colors="black", labelcolor="black")
+for t in cbar.ax.get_yticklabels():
+    t.set_fontweight("bold")
+
+font = {'color': 'black', 'weight': 'bold', 'size': 25}
+ax.set_ylabel("Actual", fontdict=font)
+ax.set_xlabel("Predicted", fontdict=font)
+
+# Setting tick labels bold
+ax.set_xticklabels(ax.get_xticklabels(), fontweight="bold", fontdict = font)
+ax.set_yticklabels(ax.get_yticklabels(), fontweight="bold", fontdict = font)
+#ax.tick_params(axis='both', labelsize=12, weight='bold')
+for i, text in enumerate(ax.texts):
+    text.set_fontsize(25)
+for i, text in enumerate(ax.texts):
+    text.set_fontweight('bold')
+#plt.title("Confusion Matrix"+"_"+"HEADS"+str(N_HEADS)+"_"+"LAYERS"+str(N_LAYERS)+"_"+"MLP"+str(N_DENSE_UNITS)+"_"+"ImageSize"+str(SIZE)
+#          +"\n"+"Accuracy"+str(accuracy))
+plt.show()
+plt.close()
+
+conf = conf_sorted['confusion_matrix_list09']
+x = conf[99]
+print(x)
+
+x = x.replace('[', '').replace(']', '')
+
+confusion_matrix = np.array([list(map(int, row.split())) for row in x.strip().split('\n')])
+
+plt.figure(figsize=(6, 4))
+ax = sns.heatmap(confusion_matrix, annot=True, fmt="d", cmap="cool", 
+            xticklabels=['A', 'B', 'C', 'D'], 
+            yticklabels=['A', 'B', 'C', 'D'])
+
+
+cbar = ax.collections[0].colorbar
+cbar.ax.tick_params(labelsize=25, width=2, length=6, pad=10, direction="out", colors="black", labelcolor="black")
+for t in cbar.ax.get_yticklabels():
+    t.set_fontweight("bold")
+
+font = {'color': 'black', 'weight': 'bold', 'size': 25}
+ax.set_ylabel("Actual", fontdict=font)
+ax.set_xlabel("Predicted", fontdict=font)
+
+# Setting tick labels bold
+ax.set_xticklabels(ax.get_xticklabels(), fontweight="bold", fontdict = font)
+ax.set_yticklabels(ax.get_yticklabels(), fontweight="bold", fontdict = font)
+#ax.tick_params(axis='both', labelsize=12, weight='bold')
+for i, text in enumerate(ax.texts):
+    text.set_fontsize(25)
+for i, text in enumerate(ax.texts):
+    text.set_fontweight('bold')
+#plt.title("Confusion Matrix"+"_"+"HEADS"+str(N_HEADS)+"_"+"LAYERS"+str(N_LAYERS)+"_"+"MLP"+str(N_DENSE_UNITS)+"_"+"ImageSize"+str(SIZE)
+#          +"\n"+"Accuracy"+str(accuracy))
+plt.show()
+plt.close()
+
+conf = conf_sorted['confusion_matrix_list12']
+x = conf[99]
+print(x)
+
+x = x.replace('[', '').replace(']', '')
+
+confusion_matrix = np.array([list(map(int, row.split())) for row in x.strip().split('\n')])
+
+plt.figure(figsize=(6, 4))
+ax = sns.heatmap(confusion_matrix, annot=True, fmt="d", cmap="cool", 
+            xticklabels=['A', 'B', 'C', 'D'], 
+            yticklabels=['A', 'B', 'C', 'D'])
+
+
+cbar = ax.collections[0].colorbar
+cbar.ax.tick_params(labelsize=25, width=2, length=6, pad=10, direction="out", colors="black", labelcolor="black")
+for t in cbar.ax.get_yticklabels():
+    t.set_fontweight("bold")
+
+font = {'color': 'black', 'weight': 'bold', 'size': 25}
+ax.set_ylabel("Actual", fontdict=font)
+ax.set_xlabel("Predicted", fontdict=font)
+
+# Setting tick labels bold
+ax.set_xticklabels(ax.get_xticklabels(), fontweight="bold", fontdict = font)
+ax.set_yticklabels(ax.get_yticklabels(), fontweight="bold", fontdict = font)
+#ax.tick_params(axis='both', labelsize=12, weight='bold')
+for i, text in enumerate(ax.texts):
+    text.set_fontsize(25)
+for i, text in enumerate(ax.texts):
+    text.set_fontweight('bold')
+#plt.title("Confusion Matrix"+"_"+"HEADS"+str(N_HEADS)+"_"+"LAYERS"+str(N_LAYERS)+"_"+"MLP"+str(N_DENSE_UNITS)+"_"+"ImageSize"+str(SIZE)
+#          +"\n"+"Accuracy"+str(accuracy))
+plt.show()
+plt.close()
 
 
 # Example data
@@ -331,3 +661,607 @@ for i, whisker in enumerate(box['whiskers']):
     else:  # odd index, represents maximum point
         max_val = whisker.get_ydata()[1]
         print(f'Maximum point for box {i//2 + 1}: {max_val}')
+
+
+#================================================================
+
+# Combine data into a list
+data =[difference_vit, difference_cnn]
+
+fig = plt.figure(figsize=(6, 4))
+ax = plt.axes()
+# Create box plots
+box = ax.boxplot(data, patch_artist=True, widths=0.5)
+
+# Set the fill color of each box to 'none' and adjust line thickness
+for patch in box['boxes']:
+    patch.set(facecolor='none')
+    patch.set_linewidth(1)  # Adjust the thickness of the box lines
+
+# Adjust whisker and cap thickness
+for whisker in box['whiskers']:
+    whisker.set_linewidth(1)  # Adjust the thickness of the whisker lines
+for cap in box['caps']:
+    cap.set_linewidth(1)  # Adjust the thickness of the cap lines
+
+# Adjust median line thickness
+for median in box['medians']:
+    median.set_linewidth(1.5)  # Adjust the thickness of the median line
+    median.set(color='red')
+
+# Adjust flier (outlier) markers
+for flier in box['fliers']:
+    flier.set_markeredgewidth(1)  # Adjust the thickness of the marker edges
+
+#graph formatting     
+ax.tick_params(which='major', width=2.00)
+ax.tick_params(which='minor', width=2.00)
+ax.xaxis.label.set_fontsize(15)
+ax.xaxis.label.set_weight("bold")
+ax.yaxis.label.set_fontsize(15)
+ax.yaxis.label.set_weight("bold")
+ax.tick_params(axis='both', which='major', labelsize=15)
+ax.set_yticklabels(ax.get_yticks(), weight='bold')
+labels = ['ViT', 'CNN']
+ax.set_xticklabels(labels, weight='bold')
+ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.2f}'))
+#ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}'))
+ax.spines["right"].set_linewidth(1)
+ax.spines["top"].set_linewidth(1)
+ax.spines['bottom'].set_linewidth(1)
+ax.spines['left'].set_linewidth(1)
+
+plt.ylabel("(Validation - Training)")
+
+# Show the plot
+plt.show()
+
+# Combine data into a list
+data =[epoch_list_vit, epoch_list_cnn]
+
+fig = plt.figure(figsize=(6, 4))
+ax = plt.axes()
+# Create box plots
+box = ax.boxplot(data, patch_artist=True, widths=0.5)
+
+# Set the fill color of each box to 'none' and adjust line thickness
+for patch in box['boxes']:
+    patch.set(facecolor='none')
+    patch.set_linewidth(1)  # Adjust the thickness of the box lines
+
+# Adjust whisker and cap thickness
+for whisker in box['whiskers']:
+    whisker.set_linewidth(1)  # Adjust the thickness of the whisker lines
+for cap in box['caps']:
+    cap.set_linewidth(1)  # Adjust the thickness of the cap lines
+
+# Adjust median line thickness
+for median in box['medians']:
+    median.set_linewidth(1.5)  # Adjust the thickness of the median line
+    median.set(color='red')
+
+# Adjust flier (outlier) markers
+for flier in box['fliers']:
+    flier.set_markeredgewidth(1)  # Adjust the thickness of the marker edges
+
+#graph formatting     
+ax.tick_params(which='major', width=2.00)
+ax.tick_params(which='minor', width=2.00)
+ax.xaxis.label.set_fontsize(15)
+ax.xaxis.label.set_weight("bold")
+ax.yaxis.label.set_fontsize(15)
+ax.yaxis.label.set_weight("bold")
+ax.tick_params(axis='both', which='major', labelsize=15)
+ax.set_yticklabels(ax.get_yticks(), weight='bold')
+labels = ['ViT', 'CNN']
+ax.set_xticklabels(labels, weight='bold')
+ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}'))
+#ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}'))
+ax.spines["right"].set_linewidth(1)
+ax.spines["top"].set_linewidth(1)
+ax.spines['bottom'].set_linewidth(1)
+ax.spines['left'].set_linewidth(1)
+
+plt.ylabel("Epoch\n(Before Stopping)")
+
+# Show the plot
+plt.show()
+
+time_list_vit = df_vit['time_list']
+time_list_cnn = df_cnn['time_list']
+# Combine data into a list
+data =[time_list_vit, time_list_cnn]
+
+fig = plt.figure(figsize=(6, 4))
+ax = plt.axes()
+# Create box plots
+box = ax.boxplot(data, patch_artist=True, widths=0.5)
+
+# Set the fill color of each box to 'none' and adjust line thickness
+for patch in box['boxes']:
+    patch.set(facecolor='none')
+    patch.set_linewidth(1)  # Adjust the thickness of the box lines
+
+# Adjust whisker and cap thickness
+for whisker in box['whiskers']:
+    whisker.set_linewidth(1)  # Adjust the thickness of the whisker lines
+for cap in box['caps']:
+    cap.set_linewidth(1)  # Adjust the thickness of the cap lines
+
+# Adjust median line thickness
+for median in box['medians']:
+    median.set_linewidth(1.5)  # Adjust the thickness of the median line
+    median.set(color='red')
+
+# Adjust flier (outlier) markers
+for flier in box['fliers']:
+    flier.set_markeredgewidth(1)  # Adjust the thickness of the marker edges
+
+#graph formatting     
+ax.tick_params(which='major', width=2.00)
+ax.tick_params(which='minor', width=2.00)
+ax.xaxis.label.set_fontsize(15)
+ax.xaxis.label.set_weight("bold")
+ax.yaxis.label.set_fontsize(15)
+ax.yaxis.label.set_weight("bold")
+ax.tick_params(axis='both', which='major', labelsize=15)
+ax.set_yticklabels(ax.get_yticks(), weight='bold')
+labels = ['ViT', 'CNN']
+ax.set_xticklabels(labels, weight='bold')
+ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}'))
+#ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}'))
+ax.spines["right"].set_linewidth(1)
+ax.spines["top"].set_linewidth(1)
+ax.spines['bottom'].set_linewidth(1)
+ax.spines['left'].set_linewidth(1)
+
+plt.ylabel("Training duration (s)")
+
+# Show the plot
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+conf = df_cnn[['confusion_matrix_list', 'confusion_matrix_list06', 'confusion_matrix_list08', 'confusion_matrix_list09', 'confusion_matrix_list12', 'accuracy_list']]
+conf_sorted = conf.sort_values(by='accuracy_list', ascending=True)
+##conf = conf_sorted['confusion_matrix_list']
+conf_sorted = conf_sorted.reset_index(drop = True)
+conf = conf_sorted['confusion_matrix_list']
+x = conf[99]
+print(x)
+
+x = x.replace('[', '').replace(']', '')
+
+confusion_matrix = np.array([list(map(int, row.split())) for row in x.strip().split('\n')])
+
+plt.figure(figsize=(6, 4))
+ax = sns.heatmap(confusion_matrix, annot=True, fmt="d", cmap="cool", 
+            xticklabels=['Region A', 'Region B', 'Region C', 'Region D'], 
+            yticklabels=['Region A', 'Region B', 'Region C', 'Region D'])
+
+
+cbar = ax.collections[0].colorbar
+cbar.ax.tick_params(labelsize=15, width=2, length=6, pad=10, direction="out", colors="black", labelcolor="black")
+for t in cbar.ax.get_yticklabels():
+    t.set_fontweight("bold")
+
+font = {'color': 'black', 'weight': 'bold', 'size': 15}
+ax.set_ylabel("Actual", fontdict=font)
+ax.set_xlabel("Predicted", fontdict=font)
+
+# Setting tick labels bold
+ax.set_xticklabels(ax.get_xticklabels(), fontweight="bold")
+ax.set_yticklabels(ax.get_yticklabels(), fontweight="bold")
+#ax.tick_params(axis='both', labelsize=12, weight='bold')
+for i, text in enumerate(ax.texts):
+    text.set_fontsize(15)
+for i, text in enumerate(ax.texts):
+    text.set_fontweight('bold')
+#plt.title("Confusion Matrix"+"_"+"HEADS"+str(N_HEADS)+"_"+"LAYERS"+str(N_LAYERS)+"_"+"MLP"+str(N_DENSE_UNITS)+"_"+"ImageSize"+str(SIZE)
+#          +"\n"+"Accuracy"+str(accuracy))
+plt.show()
+plt.close()
+
+conf = conf_sorted['confusion_matrix_list06']
+x = conf[99]
+print(x)
+
+x = x.replace('[', '').replace(']', '')
+
+confusion_matrix = np.array([list(map(int, row.split())) for row in x.strip().split('\n')])
+
+plt.figure(figsize=(6, 4))
+ax = sns.heatmap(confusion_matrix, annot=True, fmt="d", cmap="cool", 
+            xticklabels=['A', 'B', 'C', 'D'], 
+            yticklabels=['A', 'B', 'C', 'D'])
+
+
+cbar = ax.collections[0].colorbar
+cbar.ax.tick_params(labelsize=25, width=2, length=6, pad=10, direction="out", colors="black", labelcolor="black")
+for t in cbar.ax.get_yticklabels():
+    t.set_fontweight("bold")
+
+font = {'color': 'black', 'weight': 'bold', 'size': 25}
+ax.set_ylabel("Actual", fontdict=font)
+ax.set_xlabel("Predicted", fontdict=font)
+
+# Setting tick labels bold
+ax.set_xticklabels(ax.get_xticklabels(), fontweight="bold", fontdict = font)
+ax.set_yticklabels(ax.get_yticklabels(), fontweight="bold", fontdict = font)
+#ax.tick_params(axis='both', labelsize=12, weight='bold')
+for i, text in enumerate(ax.texts):
+    text.set_fontsize(25)
+for i, text in enumerate(ax.texts):
+    text.set_fontweight('bold')
+#plt.title("Confusion Matrix"+"_"+"HEADS"+str(N_HEADS)+"_"+"LAYERS"+str(N_LAYERS)+"_"+"MLP"+str(N_DENSE_UNITS)+"_"+"ImageSize"+str(SIZE)
+#          +"\n"+"Accuracy"+str(accuracy))
+plt.show()
+plt.close()
+
+conf = conf_sorted['confusion_matrix_list08']
+x = conf[99]
+print(x)
+
+x = x.replace('[', '').replace(']', '')
+
+confusion_matrix = np.array([list(map(int, row.split())) for row in x.strip().split('\n')])
+
+plt.figure(figsize=(6, 4))
+ax = sns.heatmap(confusion_matrix, annot=True, fmt="d", cmap="cool", 
+            xticklabels=['A', 'B', 'C', 'D'], 
+            yticklabels=['A', 'B', 'C', 'D'])
+
+
+cbar = ax.collections[0].colorbar
+cbar.ax.tick_params(labelsize=25, width=2, length=6, pad=10, direction="out", colors="black", labelcolor="black")
+for t in cbar.ax.get_yticklabels():
+    t.set_fontweight("bold")
+
+font = {'color': 'black', 'weight': 'bold', 'size': 25}
+ax.set_ylabel("Actual", fontdict=font)
+ax.set_xlabel("Predicted", fontdict=font)
+
+# Setting tick labels bold
+ax.set_xticklabels(ax.get_xticklabels(), fontweight="bold", fontdict = font)
+ax.set_yticklabels(ax.get_yticklabels(), fontweight="bold", fontdict = font)
+#ax.tick_params(axis='both', labelsize=12, weight='bold')
+for i, text in enumerate(ax.texts):
+    text.set_fontsize(25)
+for i, text in enumerate(ax.texts):
+    text.set_fontweight('bold')
+#plt.title("Confusion Matrix"+"_"+"HEADS"+str(N_HEADS)+"_"+"LAYERS"+str(N_LAYERS)+"_"+"MLP"+str(N_DENSE_UNITS)+"_"+"ImageSize"+str(SIZE)
+#          +"\n"+"Accuracy"+str(accuracy))
+plt.show()
+plt.close()
+
+conf = conf_sorted['confusion_matrix_list09']
+x = conf[99]
+print(x)
+
+x = x.replace('[', '').replace(']', '')
+
+confusion_matrix = np.array([list(map(int, row.split())) for row in x.strip().split('\n')])
+
+plt.figure(figsize=(6, 4))
+ax = sns.heatmap(confusion_matrix, annot=True, fmt="d", cmap="cool", 
+            xticklabels=['A', 'B', 'C', 'D'], 
+            yticklabels=['A', 'B', 'C', 'D'])
+
+
+cbar = ax.collections[0].colorbar
+cbar.ax.tick_params(labelsize=25, width=2, length=6, pad=10, direction="out", colors="black", labelcolor="black")
+for t in cbar.ax.get_yticklabels():
+    t.set_fontweight("bold")
+
+font = {'color': 'black', 'weight': 'bold', 'size': 25}
+ax.set_ylabel("Actual", fontdict=font)
+ax.set_xlabel("Predicted", fontdict=font)
+
+# Setting tick labels bold
+ax.set_xticklabels(ax.get_xticklabels(), fontweight="bold", fontdict = font)
+ax.set_yticklabels(ax.get_yticklabels(), fontweight="bold", fontdict = font)
+#ax.tick_params(axis='both', labelsize=12, weight='bold')
+for i, text in enumerate(ax.texts):
+    text.set_fontsize(25)
+for i, text in enumerate(ax.texts):
+    text.set_fontweight('bold')
+#plt.title("Confusion Matrix"+"_"+"HEADS"+str(N_HEADS)+"_"+"LAYERS"+str(N_LAYERS)+"_"+"MLP"+str(N_DENSE_UNITS)+"_"+"ImageSize"+str(SIZE)
+#          +"\n"+"Accuracy"+str(accuracy))
+plt.show()
+plt.close()
+
+conf = conf_sorted['confusion_matrix_list12']
+x = conf[99]
+print(x)
+
+x = x.replace('[', '').replace(']', '')
+
+confusion_matrix = np.array([list(map(int, row.split())) for row in x.strip().split('\n')])
+
+plt.figure(figsize=(6, 4))
+ax = sns.heatmap(confusion_matrix, annot=True, fmt="d", cmap="cool", 
+            xticklabels=['A', 'B', 'C', 'D'], 
+            yticklabels=['A', 'B', 'C', 'D'])
+
+
+cbar = ax.collections[0].colorbar
+cbar.ax.tick_params(labelsize=25, width=2, length=6, pad=10, direction="out", colors="black", labelcolor="black")
+for t in cbar.ax.get_yticklabels():
+    t.set_fontweight("bold")
+
+font = {'color': 'black', 'weight': 'bold', 'size': 25}
+ax.set_ylabel("Actual", fontdict=font)
+ax.set_xlabel("Predicted", fontdict=font)
+
+# Setting tick labels bold
+ax.set_xticklabels(ax.get_xticklabels(), fontweight="bold", fontdict = font)
+ax.set_yticklabels(ax.get_yticklabels(), fontweight="bold", fontdict = font)
+#ax.tick_params(axis='both', labelsize=12, weight='bold')
+for i, text in enumerate(ax.texts):
+    text.set_fontsize(25)
+for i, text in enumerate(ax.texts):
+    text.set_fontweight('bold')
+#plt.title("Confusion Matrix"+"_"+"HEADS"+str(N_HEADS)+"_"+"LAYERS"+str(N_LAYERS)+"_"+"MLP"+str(N_DENSE_UNITS)+"_"+"ImageSize"+str(SIZE)
+#          +"\n"+"Accuracy"+str(accuracy))
+plt.show()
+plt.close()
+
+conf = df_vit[['confusion_matrix_list', 'confusion_matrix_list06', 'confusion_matrix_list08', 'confusion_matrix_list09', 'confusion_matrix_list12', 'accuracy_list']]
+conf_sorted = conf.sort_values(by='accuracy_list', ascending=True)
+#conf = conf_sorted['confusion_matrix_list']
+conf_sorted = conf_sorted.reset_index(drop = True)
+conf = conf_sorted['confusion_matrix_list']
+x = conf[99]
+print(x)
+
+x = x.replace('[', '').replace(']', '')
+
+confusion_matrix = np.array([list(map(int, row.split())) for row in x.strip().split('\n')])
+
+plt.figure(figsize=(6, 4))
+ax = sns.heatmap(confusion_matrix, annot=True, fmt="d", cmap="cool", 
+            xticklabels=['Region A', 'Region B', 'Region C', 'Region D'], 
+            yticklabels=['Region A', 'Region B', 'Region C', 'Region D'])
+
+
+cbar = ax.collections[0].colorbar
+cbar.ax.tick_params(labelsize=15, width=2, length=6, pad=10, direction="out", colors="black", labelcolor="black")
+for t in cbar.ax.get_yticklabels():
+    t.set_fontweight("bold")
+
+font = {'color': 'black', 'weight': 'bold', 'size': 15}
+ax.set_ylabel("Actual", fontdict=font)
+ax.set_xlabel("Predicted", fontdict=font)
+
+# Setting tick labels bold
+ax.set_xticklabels(ax.get_xticklabels(), fontweight="bold")
+ax.set_yticklabels(ax.get_yticklabels(), fontweight="bold")
+#ax.tick_params(axis='both', labelsize=12, weight='bold')
+for i, text in enumerate(ax.texts):
+    text.set_fontsize(15)
+for i, text in enumerate(ax.texts):
+    text.set_fontweight('bold')
+#plt.title("Confusion Matrix"+"_"+"HEADS"+str(N_HEADS)+"_"+"LAYERS"+str(N_LAYERS)+"_"+"MLP"+str(N_DENSE_UNITS)+"_"+"ImageSize"+str(SIZE)
+#          +"\n"+"Accuracy"+str(accuracy))
+plt.show()
+plt.close()
+
+conf = conf_sorted['confusion_matrix_list06']
+x = conf[99]
+print(x)
+
+x = x.replace('[', '').replace(']', '')
+
+confusion_matrix = np.array([list(map(int, row.split())) for row in x.strip().split('\n')])
+
+plt.figure(figsize=(6, 4))
+ax = sns.heatmap(confusion_matrix, annot=True, fmt="d", cmap="cool", 
+            xticklabels=['A', 'B', 'C', 'D'], 
+            yticklabels=['A', 'B', 'C', 'D'])
+
+
+cbar = ax.collections[0].colorbar
+cbar.ax.tick_params(labelsize=25, width=2, length=6, pad=10, direction="out", colors="black", labelcolor="black")
+for t in cbar.ax.get_yticklabels():
+    t.set_fontweight("bold")
+
+font = {'color': 'black', 'weight': 'bold', 'size': 25}
+ax.set_ylabel("Actual", fontdict=font)
+ax.set_xlabel("Predicted", fontdict=font)
+
+# Setting tick labels bold
+ax.set_xticklabels(ax.get_xticklabels(), fontweight="bold", fontdict = font)
+ax.set_yticklabels(ax.get_yticklabels(), fontweight="bold", fontdict = font)
+#ax.tick_params(axis='both', labelsize=12, weight='bold')
+for i, text in enumerate(ax.texts):
+    text.set_fontsize(25)
+for i, text in enumerate(ax.texts):
+    text.set_fontweight('bold')
+#plt.title("Confusion Matrix"+"_"+"HEADS"+str(N_HEADS)+"_"+"LAYERS"+str(N_LAYERS)+"_"+"MLP"+str(N_DENSE_UNITS)+"_"+"ImageSize"+str(SIZE)
+#          +"\n"+"Accuracy"+str(accuracy))
+plt.show()
+plt.close()
+
+conf = conf_sorted['confusion_matrix_list08']
+x = conf[99]
+print(x)
+
+x = x.replace('[', '').replace(']', '')
+
+confusion_matrix = np.array([list(map(int, row.split())) for row in x.strip().split('\n')])
+
+plt.figure(figsize=(6, 4))
+ax = sns.heatmap(confusion_matrix, annot=True, fmt="d", cmap="cool", 
+            xticklabels=['A', 'B', 'C', 'D'], 
+            yticklabels=['A', 'B', 'C', 'D'])
+
+
+cbar = ax.collections[0].colorbar
+cbar.ax.tick_params(labelsize=25, width=2, length=6, pad=10, direction="out", colors="black", labelcolor="black")
+for t in cbar.ax.get_yticklabels():
+    t.set_fontweight("bold")
+
+font = {'color': 'black', 'weight': 'bold', 'size': 25}
+ax.set_ylabel("Actual", fontdict=font)
+ax.set_xlabel("Predicted", fontdict=font)
+
+# Setting tick labels bold
+ax.set_xticklabels(ax.get_xticklabels(), fontweight="bold", fontdict = font)
+ax.set_yticklabels(ax.get_yticklabels(), fontweight="bold", fontdict = font)
+#ax.tick_params(axis='both', labelsize=12, weight='bold')
+for i, text in enumerate(ax.texts):
+    text.set_fontsize(25)
+for i, text in enumerate(ax.texts):
+    text.set_fontweight('bold')
+#plt.title("Confusion Matrix"+"_"+"HEADS"+str(N_HEADS)+"_"+"LAYERS"+str(N_LAYERS)+"_"+"MLP"+str(N_DENSE_UNITS)+"_"+"ImageSize"+str(SIZE)
+#          +"\n"+"Accuracy"+str(accuracy))
+plt.show()
+plt.close()
+
+conf = conf_sorted['confusion_matrix_list09']
+x = conf[99]
+print(x)
+
+x = x.replace('[', '').replace(']', '')
+
+confusion_matrix = np.array([list(map(int, row.split())) for row in x.strip().split('\n')])
+
+plt.figure(figsize=(6, 4))
+ax = sns.heatmap(confusion_matrix, annot=True, fmt="d", cmap="cool", 
+            xticklabels=['A', 'B', 'C', 'D'], 
+            yticklabels=['A', 'B', 'C', 'D'])
+
+
+cbar = ax.collections[0].colorbar
+cbar.ax.tick_params(labelsize=25, width=2, length=6, pad=10, direction="out", colors="black", labelcolor="black")
+for t in cbar.ax.get_yticklabels():
+    t.set_fontweight("bold")
+
+font = {'color': 'black', 'weight': 'bold', 'size': 25}
+ax.set_ylabel("Actual", fontdict=font)
+ax.set_xlabel("Predicted", fontdict=font)
+
+# Setting tick labels bold
+ax.set_xticklabels(ax.get_xticklabels(), fontweight="bold", fontdict = font)
+ax.set_yticklabels(ax.get_yticklabels(), fontweight="bold", fontdict = font)
+#ax.tick_params(axis='both', labelsize=12, weight='bold')
+for i, text in enumerate(ax.texts):
+    text.set_fontsize(25)
+for i, text in enumerate(ax.texts):
+    text.set_fontweight('bold')
+#plt.title("Confusion Matrix"+"_"+"HEADS"+str(N_HEADS)+"_"+"LAYERS"+str(N_LAYERS)+"_"+"MLP"+str(N_DENSE_UNITS)+"_"+"ImageSize"+str(SIZE)
+#          +"\n"+"Accuracy"+str(accuracy))
+plt.show()
+plt.close()
+
+conf = conf_sorted['confusion_matrix_list12']
+x = conf[99]
+print(x)
+
+x = x.replace('[', '').replace(']', '')
+
+confusion_matrix = np.array([list(map(int, row.split())) for row in x.strip().split('\n')])
+
+plt.figure(figsize=(6, 4))
+ax = sns.heatmap(confusion_matrix, annot=True, fmt="d", cmap="cool", 
+            xticklabels=['A', 'B', 'C', 'D'], 
+            yticklabels=['A', 'B', 'C', 'D'])
+
+
+cbar = ax.collections[0].colorbar
+cbar.ax.tick_params(labelsize=25, width=2, length=6, pad=10, direction="out", colors="black", labelcolor="black")
+for t in cbar.ax.get_yticklabels():
+    t.set_fontweight("bold")
+
+font = {'color': 'black', 'weight': 'bold', 'size': 25}
+ax.set_ylabel("Actual", fontdict=font)
+ax.set_xlabel("Predicted", fontdict=font)
+
+# Setting tick labels bold
+ax.set_xticklabels(ax.get_xticklabels(), fontweight="bold", fontdict = font)
+ax.set_yticklabels(ax.get_yticklabels(), fontweight="bold", fontdict = font)
+#ax.tick_params(axis='both', labelsize=12, weight='bold')
+for i, text in enumerate(ax.texts):
+    text.set_fontsize(25)
+for i, text in enumerate(ax.texts):
+    text.set_fontweight('bold')
+#plt.title("Confusion Matrix"+"_"+"HEADS"+str(N_HEADS)+"_"+"LAYERS"+str(N_LAYERS)+"_"+"MLP"+str(N_DENSE_UNITS)+"_"+"ImageSize"+str(SIZE)
+#          +"\n"+"Accuracy"+str(accuracy))
+plt.show()
+plt.close()
+
+# Example data
+vit_accuracy = df_vit['accuracy_list']
+cnn_accuracy = df_cnn['accuracy_list']
+
+# Combine data into a list
+data =[vit_accuracy, cnn_accuracy]
+
+fig = plt.figure(figsize=(6, 4))
+ax = plt.axes()
+# Create box plots
+box = ax.boxplot(data, patch_artist=True, widths=0.5)
+
+# Set the fill color of each box to 'none' and adjust line thickness
+for patch in box['boxes']:
+    patch.set(facecolor='none')
+    patch.set_linewidth(1)  # Adjust the thickness of the box lines
+
+# Adjust whisker and cap thickness
+for whisker in box['whiskers']:
+    whisker.set_linewidth(1)  # Adjust the thickness of the whisker lines
+for cap in box['caps']:
+    cap.set_linewidth(1)  # Adjust the thickness of the cap lines
+
+# Adjust median line thickness
+for median in box['medians']:
+    median.set_linewidth(1.5)  # Adjust the thickness of the median line
+    median.set(color='red')
+
+# Adjust flier (outlier) markers
+for flier in box['fliers']:
+    flier.set_markeredgewidth(1)  # Adjust the thickness of the marker edges
+
+#graph formatting     
+ax.tick_params(which='major', width=2.00)
+ax.tick_params(which='minor', width=2.00)
+ax.xaxis.label.set_fontsize(15)
+ax.xaxis.label.set_weight("bold")
+ax.yaxis.label.set_fontsize(15)
+ax.yaxis.label.set_weight("bold")
+ax.tick_params(axis='both', which='major', labelsize=15)
+ax.set_yticklabels(ax.get_yticks(), weight='bold')
+labels = ['ViT', 'CNN']
+ax.set_xticklabels(labels, weight='bold')
+ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.2f}'))
+#ax.xaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}'))
+ax.spines["right"].set_linewidth(1)
+ax.spines["top"].set_linewidth(1)
+ax.spines['bottom'].set_linewidth(1)
+ax.spines['left'].set_linewidth(1)
+
+plt.ylabel("Accuracy")
+
+# Show the plot
+plt.show()
+
+# Extracting minimum and maximum points from the box plot
+for i, whisker in enumerate(box['whiskers']):
+    if i % 2 == 0:  # even index, represents minimum point
+        min_val = whisker.get_ydata()[1]
+        print(f'Minimum point for box {i//2 + 1}: {min_val}')
+    else:  # odd index, represents maximum point
+        max_val = whisker.get_ydata()[1]
+        print(f'Maximum point for box {i//2 + 1}: {max_val}')
+
+
